@@ -35,12 +35,27 @@ class Db(conf: Config){
     def crawlId = column[UUID]("CRAWL_ID")
     def mediaId = column[String]("MEDIA_ID")
     def imageUrl = column[String]("STANDARD_URL")
-    def caption = column[String]("CAPTION")
+    def caption = column[String]("CAPTION", O.DBType("varchar(4000)"))
     def createdDate = column[Timestamp]("CREATED_DATE")
     def isDownloaded = column[Boolean]("IS_DOWNLOADED")  
     def * = (id, accountId, crawlId, mediaId, imageUrl, caption, createdDate, isDownloaded)
     def account = foreignKey("ACC_FK", accountId, accounts)(_.id)
     def crawl = foreignKey("CRL_FK", crawlId, crawls)(_.id)
+  }
+
+  def addImage(map: Map[String, String]){
+    connection.withSession{implicit session =>
+      images += (
+        UUID.randomUUID, 
+        UUID.fromString(map("accountId")),
+        UUID.fromString(map("crawlId")),
+        map("mediaId"),
+        map("imageUrl"),
+        map("caption"),
+        timestamp(map("createdTime")),
+        false
+      )
+    }
   }
 
   def createTables(){
@@ -66,13 +81,30 @@ class Db(conf: Config){
     uuids
   }
 
-  //crawl functions
-  def addCrawl(uId: UUID){
+  def getAccounts(): MutableList[Map[String, String]] = {
+    val list = new MutableList[Map[String, String]]
+
     connection.withSession{ implicit session =>
-      crawls += (UUID.randomUUID, uId, timestamp)
+      accounts foreach{ case (id, userId, userName, userFullName) =>
+        val map = Map.empty[String, String]
+        map("id") = id.toString
+        map("userId") = userId
+        map("userName") = userName
+        list += map
+      }
+    }
+
+    list
+  }
+
+  //crawl functions
+  def addCrawl(crawlId: UUID, uId: UUID){
+    connection.withSession{ implicit session =>
+      crawls += (crawlId, uId, timestamp)
     }
   }
   
   //misc functions 
   def timestamp(): Timestamp = {new Timestamp(new Date().getTime())}
+  def timestamp(time: String): Timestamp = {new Timestamp(new Date(time.toLong * 1000l).getTime)}
 }

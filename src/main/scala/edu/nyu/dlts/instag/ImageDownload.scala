@@ -9,11 +9,10 @@ import java.util.List
 
 import org.apache.http.HttpEntity
 import org.apache.http.client.methods.HttpGet
-import org.apache.http.impl.client.HttpClients
+import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.util.EntityUtils
 
-class ImageDownload(url: String, file: java.io.File){
-  val client = HttpClients.createDefault
+class ImageDownload(url: String, file: java.io.File, client: CloseableHttpClient){
   val get = new HttpGet(url)
   val response = client.execute(get)
   val entity = response.getEntity
@@ -28,7 +27,7 @@ class ImageDownload(url: String, file: java.io.File){
   }
 
   EntityUtils.consume(entity)
-  client.close
+  response.close
   fos.close
   is.close
 }
