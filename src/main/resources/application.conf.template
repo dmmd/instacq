@@ -1,5 +1,12 @@
 instag{
-	client_id=your_client_id
-	endpoint="https://api.instagram.com/v1/"
-	data_dir="your storage directory"
+  client_id=your_client_id
+  endpoint="https://api.instagram.com/v1/"
+  data_dir="your storage directory"
+}
+
+db{
+  url="jdbc:postgresql://localhost:"
+  port=5433
+  user=insg
+  pass=insg
 }

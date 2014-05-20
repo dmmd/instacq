@@ -7,7 +7,7 @@ import scala.slick.driver.PostgresDriver.simple._
 import scala.collection.mutable.{MutableList, Map}
 
 class Db(conf: Config){
-  val connection = Database.forURL("jdbc:postgresql://localhost:5432/insg", driver = "org.postgresql.Driver", user="insg", password="insg")	
+  val connection = Database.forURL(conf.getString("db.url") + conf.getString("db.port") + "/insg", driver = "org.postgresql.Driver", user = conf.getString("db.user"), password = conf.getString("db.pass"))	
 
   val accounts = TableQuery[Accounts]
   val crawls = TableQuery[Crawls]
@@ -43,6 +43,7 @@ class Db(conf: Config){
     def crawl = foreignKey("CRL_FK", crawlId, crawls)(_.id)
   }
 
+  //image functions
   def addImage(map: Map[String, String]){
     connection.withSession{implicit session =>
       images += (
@@ -53,11 +54,17 @@ class Db(conf: Config){
         map("imageUrl"),
         map("caption"),
         timestamp(map("createdTime")),
-        false
+        true
       )
     }
   }
 
+  def getImageIds(): MutableList[String] = {
+    val ids = new MutableList[String]
+    ids
+  }
+
+  //db functions
   def createTables(){
   	connection.withSession{implicit session =>
   		(accounts.ddl ++ crawls.ddl ++ images.ddl).create
