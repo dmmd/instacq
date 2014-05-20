@@ -1,3 +1,16 @@
+import AssemblyKeys._
+
+assemblySettings
+
+jarName in assembly := "instag.jar"
+
+name := "InstaG"
+
+version := "0.1"
+
+scalaVersion := "2.10.3"
+
+
 libraryDependencies ++= Seq(
 	"org.apache.httpcomponents" % "httpclient" % "4.3.3",
 	"com.typesafe" % "config" % "1.2.1",

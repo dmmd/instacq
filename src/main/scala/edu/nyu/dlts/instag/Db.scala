@@ -61,6 +61,10 @@ class Db(conf: Config){
 
   def getImageIds(): MutableList[String] = {
     val ids = new MutableList[String]
+    connection.withSession{implicit session =>
+      val query = for(i <- images) yield i.mediaId
+      query foreach{q => ids += q}
+    }
     ids
   }
 
