@@ -18,14 +18,10 @@ class Crawl(){
     val userUUID = UUID.fromString(account("id"))
     val crawlUUID = UUID.randomUUID
     val crawlDir = new File(conf.getString("instag.data_dir"), crawlUUID.toString)
+    
     crawlDir.mkdir
-    
-    println("running crawl " + crawlUUID.toString())
 
-    db.addCrawl(crawlUUID, userUUID)
     val images = requests.getImagesById(account("userId"))
-    
-
     images.foreach{image =>
       if(! mediaIds.contains(image._1)){
 	println(image._1)
@@ -39,15 +35,16 @@ class Crawl(){
 	db.addImage(mediaMap)
       }
     }
-
-	def writeFile(url: String, dir: File){
-	  val file = new File(dir, url.split("/").last)
-	  new ImageDownload(url, file, client)
-	}
-  if(crawlDir.list().length == 0){crawlDir.delete} 
+    
+    if(crawlDir.list().length == 0){crawlDir.delete}
+    else{db.addCrawl(crawlUUID, userUUID)}
+  }
+  
+  def writeFile(url: String, dir: File){
+    val file = new File(dir, url.split("/").last)
+    new ImageDownload(url, file, client)
   }
 
-  println(count + " records added")
 }
 
 object Crawl{
