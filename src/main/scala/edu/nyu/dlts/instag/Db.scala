@@ -12,21 +12,34 @@ class Db(conf: Config){
   val accounts = TableQuery[Accounts]
   val crawls = TableQuery[Crawls]
   val images = TableQuery[Images]
+  val comments = TableQuery[Comments]
 
   class Accounts(tag: Tag) extends Table[(UUID, String, String, String)](tag, "ACCOUNTS"){
-  	def id = column[UUID]("ID", O.PrimaryKey)
-	  def userId = column[String]("USER_ID")
-	  def userName = column[String]("USER_NAME")
-	  def userFullName = column[String]("USER_FULL_NAME")
-	  def * = (id, userId, userName, userFullName)  	
+    def id = column[UUID]("ID", O.PrimaryKey)
+    def userId = column[String]("USER_ID")
+    def userName = column[String]("USER_NAME")
+    def userFullName = column[String]("USER_FULL_NAME")
+    def * = (id, userId, userName, userFullName)  	
   }
 
   class Crawls(tag: Tag) extends Table[(UUID, UUID, Timestamp)](tag, "CRAWLS"){
-  	def id = column[UUID]("ID", O.PrimaryKey)
-  	def accountId = column[UUID]("ACCOUNT_ID")
-  	def crawlDate = column[Timestamp]("CRAWL_DATE")
-  	def * = (id, accountId, crawlDate)
-  	def account = foreignKey("ACC_FK", accountId, accounts)(_.id)
+    def id = column[UUID]("ID", O.PrimaryKey)
+    def accountId = column[UUID]("ACCOUNT_ID")
+    def crawlDate = column[Timestamp]("CRAWL_DATE")
+    def * = (id, accountId, crawlDate)
+    def account = foreignKey("ACC_FK", accountId, accounts)(_.id)
+  }
+
+  class Comments(tag: Tag) extends Table[(UUID, UUID, Timestamp, String, String, String, String)](tag, "COMMENTS"){
+    def id = column[UUID]("ID", O.PrimaryKey)
+    def imageId = column[UUID]("IMAGE_ID")
+    def createdDate = column[Timestamp]("CREATED_DATE")
+    def comment = column[String]("COMMENT", O.DBType("varchar(4000)"))
+    def userId = column[String]("USER_ID")
+    def userName = column[String]("USER_NAME")
+    def userFullName = column[String]("USER_FULL_NAME")
+    def * = (id, imageId, createdDate, comment, userId, userName, userFullName)
+    def image = foreignKey("IMG_FK", imageId, images)(_.id)
   }
 
   class Images(tag:Tag) extends Table[(UUID, UUID, UUID, String, String, String, Timestamp, Boolean)](tag, "IMAGES"){
@@ -71,7 +84,7 @@ class Db(conf: Config){
   //db functions
   def createTables(){
   	connection.withSession{implicit session =>
-  		(accounts.ddl ++ crawls.ddl ++ images.ddl).create
+  		(accounts.ddl ++ crawls.ddl ++ images.ddl ++ comments.ddl).create
   	}
   }
 

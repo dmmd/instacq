@@ -80,4 +80,26 @@ class Requests(client: CloseableHttpClient, conf: Config){
 			map("caption") = ""	
 		map
 	}
+
+  def getCommentsByMediaId(id: String): Unit = {
+    import scala.collection.JavaConversions._
+    val url = conf.getString("instag.endpoint") + "/media/" + id + "/?client_id=" + conf.getString("instag.client_id")
+    val get = new HttpGet(url)
+    val response = client.execute(get)
+    val entity = response.getEntity
+    val result = Source.fromInputStream(entity.getContent).mkString("")
+    val mapper = new ObjectMapper();
+    val reader = new BufferedReader(new StringReader(result))
+    val rootNode = mapper.readTree(reader)
+    val dataNode = rootNode.get("data").get("comments").get("data")
+    dataNode.foreach{comment =>
+      println("id: " + comment.get("id").getTextValue())
+      println("created_time: " + comment.get("created_time"))
+      println("text: " + comment.get("text").getTextValue)
+      println("username: " + comment.get("from").get("username").getTextValue())
+      println("full name: " + comment.get("from").get("full_name").getTextValue())
+      println("id: " + comment.get("from").get("id").getTextValue())
+      println()
+    }
+  }
 }
