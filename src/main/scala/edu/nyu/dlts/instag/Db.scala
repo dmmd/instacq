@@ -56,6 +56,21 @@ class Db(conf: Config){
     def crawl = foreignKey("CRL_FK", crawlId, crawls)(_.id)
   }
 
+  //comment functions
+  def addComment(map: Map[String, String]){
+    connection.withSession{implicit session =>
+      comments += (
+	UUID.randomUUID,
+	UUID.fromString(map("imageId")), 
+	timestamp(map("createdTime")),
+	map("comment"),
+        map("userId"),
+        map("userName"),
+        map("userFullName")
+      )
+    }
+  }
+
   //image functions
   def addImage(map: Map[String, String]){
     connection.withSession{implicit session =>
@@ -75,10 +90,19 @@ class Db(conf: Config){
   def getImageIds(): MutableList[String] = {
     val ids = new MutableList[String]
     connection.withSession{implicit session =>
-      val query = for(i <- images) yield i.mediaId
-      query foreach{q => ids += q}
+      val q = for(i <- images) yield i.mediaId
+      q foreach{q => ids += q}
     }
     ids
+  }
+  
+  def getImageIds(num: Int): Map[UUID, String] = {
+    val map = Map.empty[UUID, String]
+    connection.withSession{implicit session => 
+      val q = for(i <- images.take(num)) yield (i.id, i.mediaId)
+      for((i,j) <- q) map(i) = j    
+    }
+    map
   }
 
   //db functions

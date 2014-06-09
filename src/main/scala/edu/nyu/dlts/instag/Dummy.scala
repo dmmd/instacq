@@ -9,4 +9,11 @@ class Dummy{
   val client = HttpClients.createDefault()
   val db = new Db(conf)
   val requests = new Requests(client, conf)
+
+}
+
+object Dummy{
+  def main(args: Array[String]){
+    new Dummy
+  }
 }
