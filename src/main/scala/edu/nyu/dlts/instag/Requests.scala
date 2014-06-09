@@ -2,12 +2,13 @@ package edu.nyu.dlts.instag
 
 import com.typesafe.config.Config
 import java.io.{BufferedReader, StringReader}
+import java.util.UUID
 import org.apache.http.impl.client.CloseableHttpClient
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.util.EntityUtils
 import org.codehaus.jackson.map.ObjectMapper
 import scala.io.Source
-import scala.collection.mutable.{Map}
+import scala.collection.mutable.{MutableList, Map}
 import scala.annotation.tailrec
 
 class Requests(client: CloseableHttpClient, conf: Config){
@@ -80,7 +81,8 @@ class Requests(client: CloseableHttpClient, conf: Config){
     map
   }
 
-  def getCommentsByMediaId(id: String): org.codehaus.jackson.JsonNode = {
+  def getCommentsByMediaId(id: String): MutableList[Map[String, String]] = {
+    val list = new MutableList[Map[String, String]]
     import scala.collection.JavaConversions._
     val url = conf.getString("instag.endpoint") + "/media/" + id + "/?client_id=" + conf.getString("instag.client_id")
     val get = new HttpGet(url)
@@ -92,6 +94,17 @@ class Requests(client: CloseableHttpClient, conf: Config){
     val rootNode = mapper.readTree(reader)   
     EntityUtils.consume(entity)
     response.close
-    rootNode.get("data").get("comments").get("data")
+    val dataNode = rootNode.get("data").get("comments").get("data")
+    dataNode.foreach{comment => 
+      val map = Map.empty[String, String]
+      map("commentId") = comment.get("id").getTextValue
+      map("text") = comment.get("text").getTextValue
+      map("createdTime") = comment.get("created_time").getTextValue
+      map("username") = comment.get("from").get("username").getTextValue
+      map("userFullName") = comment.get("from").get("full_name").getTextValue
+      map("userId") = comment.get("from").get("id").getTextValue
+      list += map
+    }
+    list
   }
 }

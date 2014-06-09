@@ -9,7 +9,7 @@ import scala.collection.mutable.Map
 class AddMbZ{
   val conf = ConfigFactory.load()
   val db = new Db(conf)
-  db.createTables
+  //db.createTables
 
   //add mbz
   val map = Map.empty[String, String]
@@ -17,4 +17,10 @@ class AddMbZ{
   map("uName") = "mbzphotos"
   map("uFullName") = "Mohamed bin Zayed Al Nahyan"
   db.addAccount(map)
+}
+
+object init{
+	def main(args: Array[String]){
+		new AddMbZ
+	}
 }

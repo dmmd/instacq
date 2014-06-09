@@ -30,15 +30,16 @@ class Db(conf: Config){
     def account = foreignKey("ACC_FK", accountId, accounts)(_.id)
   }
 
-  class Comments(tag: Tag) extends Table[(UUID, UUID, Timestamp, String, String, String, String)](tag, "COMMENTS"){
+  class Comments(tag: Tag) extends Table[(UUID, UUID, String, Timestamp, String, String, String, String)](tag, "COMMENTS"){
     def id = column[UUID]("ID", O.PrimaryKey)
     def imageId = column[UUID]("IMAGE_ID")
+    def commentId = column[String]("COMMENT_ID")
     def createdDate = column[Timestamp]("CREATED_DATE")
     def comment = column[String]("COMMENT", O.DBType("varchar(4000)"))
     def userId = column[String]("USER_ID")
     def userName = column[String]("USER_NAME")
     def userFullName = column[String]("USER_FULL_NAME")
-    def * = (id, imageId, createdDate, comment, userId, userName, userFullName)
+    def * = (id, imageId, commentId, createdDate, comment, userId, userName, userFullName)
     def image = foreignKey("IMG_FK", imageId, images)(_.id)
   }
 
@@ -60,12 +61,13 @@ class Db(conf: Config){
   def addComment(map: Map[String, String]){
     connection.withSession{implicit session =>
       comments += (
-	UUID.randomUUID,
-	UUID.fromString(map("imageId")), 
-	timestamp(map("createdTime")),
-	map("comment"),
+        UUID.randomUUID,
+        UUID.fromString(map("imageId")), 
+        map("commentId"),
+        timestamp(map("createdTime")),
+        map("text"),
         map("userId"),
-        map("userName"),
+        map("username"),
         map("userFullName")
       )
     }
@@ -96,6 +98,15 @@ class Db(conf: Config){
     ids
   }
   
+  def getAllImageIds(): Map[UUID, String] = {
+    val map = Map.empty[UUID, String]
+    connection.withSession{implicit session => 
+      val q = for(i <- images) yield (i.id, i.mediaId)
+      for((i,j) <- q) map(i) = j    
+    }
+    map
+  }
+
   def getImageIds(num: Int): Map[UUID, String] = {
     val map = Map.empty[UUID, String]
     connection.withSession{implicit session => 
@@ -110,6 +121,12 @@ class Db(conf: Config){
   	connection.withSession{implicit session =>
   		(accounts.ddl ++ crawls.ddl ++ images.ddl ++ comments.ddl).create
   	}
+  }
+
+  def createCommentTable(){
+    connection.withSession{implicit session =>
+      (comments.ddl).create
+    }
   }
 
   //acount functions

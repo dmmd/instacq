@@ -17,6 +17,7 @@ class Crawl(){
    
     val userUUID = UUID.fromString(account("id"))
     val crawlUUID = UUID.randomUUID
+    db.addCrawl(crawlUUID, userUUID)
     val crawlDir = new File(conf.getString("instag.data_dir"), crawlUUID.toString)
     
     crawlDir.mkdir
@@ -36,8 +37,9 @@ class Crawl(){
       }
     }
     
-    if(crawlDir.list().length == 0){crawlDir.delete}
-    else{db.addCrawl(crawlUUID, userUUID)}
+    if(crawlDir.list().length == 0){
+      crawlDir.delete
+    }
   }
   
   def writeFile(url: String, dir: File){
