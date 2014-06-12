@@ -172,4 +172,12 @@ class Db(conf: Config){
   //misc functions 
   def timestamp(): Timestamp = {new Timestamp(new Date().getTime())}
   def timestamp(time: String): Timestamp = {new Timestamp(new Date(time.toLong * 1000l).getTime)}
+
+  def testQuery():Unit = {
+    connection.withSession{ implicit session => {
+      val uuid = UUID.fromString("be3971f1-8421-4f1b-ba9f-31a86f25f7ea")
+      println(images.filter(_.id === uuid).list.head)
+    }}
+  }
+
 }

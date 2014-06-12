@@ -17,5 +17,5 @@ libraryDependencies ++= Seq(
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
   "com.fasterxml" % "jackson-xml-databind" % "0.6.2",
   "com.typesafe.slick" %% "slick" % "2.0.2",
-  "log4j" % "log4j" % "1.2.17"
+  "org.slf4j" % "slf4j-nop" % "1.6.4"
 )

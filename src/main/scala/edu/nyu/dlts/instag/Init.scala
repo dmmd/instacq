@@ -19,8 +19,3 @@ class AddMbZ{
   db.addAccount(map)
 }
 
-object init{
-	def main(args: Array[String]){
-		new AddMbZ
-	}
-}

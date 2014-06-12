@@ -4,7 +4,7 @@ import com.typesafe.config.ConfigFactory
 import org.apache.http.impl.client.HttpClients
 import java.util.UUID
 
-class Comments{
+object Comments extends App {
   val conf = ConfigFactory.load()
   val client = HttpClients.createDefault()
   val db = new Db(conf)

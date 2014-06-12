@@ -5,7 +5,7 @@ import org.apache.http.impl.client.HttpClients
 import java.util.UUID
 import java.io.File
 
-class Crawl(){
+object Crawl extends App (){
   val conf = ConfigFactory.load()
   val db = new Db(conf)
   val client = HttpClients.createDefault()
@@ -49,8 +49,3 @@ class Crawl(){
 
 }
 
-object Crawl{
-  def main(args: Array[String]){
-    new Crawl()
-  }
-}
