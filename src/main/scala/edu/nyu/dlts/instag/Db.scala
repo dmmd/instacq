@@ -73,6 +73,48 @@ class Db(conf: Config){
     }
   }
 
+    def getCommentIds(): MutableList[String] = {
+    val ids = new MutableList[String]
+    connection.withSession{implicit session =>
+      val q = for(c <- comments) yield c.commentId
+      q.foreach{id => ids += id}
+    }
+    ids
+  }
+
+  //acount functions
+  def addAccount(map: Map[String, String]){
+    connection.withSession{ implicit session =>
+      accounts += (UUID.randomUUID, map("uId"), map("uName"), map("uFullName"))
+    }
+  }
+
+  def getAccountIds(): MutableList[UUID] ={
+    val uuids = new MutableList[UUID]
+
+    connection.withSession{ implicit session =>
+      val query = for(a <- accounts) yield a.id
+      query foreach{q => uuids += q}    
+    }
+    uuids
+  }
+
+    def getAccounts(): MutableList[Map[String, String]] = {
+    val list = new MutableList[Map[String, String]]
+
+    connection.withSession{ implicit session =>
+      accounts foreach{ case (id, userId, userName, userFullName) =>
+        val map = Map.empty[String, String]
+        map("id") = id.toString
+        map("userId") = userId
+        map("userName") = userName
+        list += map
+      }
+    }
+
+    list
+  }
+
   //image functions
   def addImage(map: Map[String, String]){
     connection.withSession{implicit session =>
@@ -98,14 +140,7 @@ class Db(conf: Config){
     ids
   }
 
-  def getCommentIds(): MutableList[String] = {
-    val ids = new MutableList[String]
-    connection.withSession{implicit session =>
-      val q = for(c <- comments) yield c.commentId
-      q.foreach{id => ids += id}
-    }
-    ids
-  }
+
   
   def getAllImageIds(): Map[UUID, String] = {
     val map = Map.empty[UUID, String]
@@ -138,39 +173,6 @@ class Db(conf: Config){
     }
   }
 
-  //acount functions
-  def addAccount(map: Map[String, String]){
-  	connection.withSession{ implicit session =>
-  		accounts += (UUID.randomUUID, map("uId"), map("uName"), map("uFullName"))
-  	}
-  }
-
-  def getAccountIds(): MutableList[UUID] ={
-    val uuids = new MutableList[UUID]
-
-    connection.withSession{ implicit session =>
-      val query = for(a <- accounts) yield a.id
-      query foreach{q => uuids += q}    
-    }
-    uuids
-  }
-
-  def getAccounts(): MutableList[Map[String, String]] = {
-    val list = new MutableList[Map[String, String]]
-
-    connection.withSession{ implicit session =>
-      accounts foreach{ case (id, userId, userName, userFullName) =>
-        val map = Map.empty[String, String]
-        map("id") = id.toString
-        map("userId") = userId
-        map("userName") = userName
-        list += map
-      }
-    }
-
-    list
-  }
-
   //crawl functions
   def addCrawl(crawlId: UUID, uId: UUID){
     connection.withSession{ implicit session =>
@@ -180,25 +182,11 @@ class Db(conf: Config){
 
   def deleteCrawl(id: UUID): Unit = {
     connection.withSession{ implicit session =>
-      println(id)
+      images.filter(_.id === id).delete
     }
   }
   //misc functions 
   def timestamp(): Timestamp = {new Timestamp(new Date().getTime())}
   def timestamp(time: String): Timestamp = {new Timestamp(new Date(time.toLong * 1000l).getTime)}
 
-  
-  def testQuery():Unit = {
-    connection.withSession{ implicit session => 
-      println(images.filter(_.id === getUUID).list.head)
-    }
-  }
-
-  private def getUUID(): UUID = {
-    var i = UUID.randomUUID
-    connection.withSession{ implicit session =>
-      i = images.take(1).list.head._1
-    }
-    i
-  }
 }
