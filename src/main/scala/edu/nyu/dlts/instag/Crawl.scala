@@ -17,9 +17,8 @@ object Crawl extends App (){
    
     val userUUID = UUID.fromString(account("id"))
     val crawlUUID = UUID.randomUUID
-    db.addCrawl(crawlUUID, userUUID)
     val crawlDir = new File(conf.getString("instag.data_dir"), crawlUUID.toString)
-    
+    db.addCrawl(crawlUUID, userUUID)    
     crawlDir.mkdir
 
     val images = requests.getImagesById(account("userId"))
@@ -39,6 +38,7 @@ object Crawl extends App (){
     
     if(crawlDir.list().length == 0){
       crawlDir.delete
+      db.deleteCrawl(crawlUUID)
     }
   }
   
@@ -48,4 +48,3 @@ object Crawl extends App (){
   }
 
 }
-

@@ -97,6 +97,15 @@ class Db(conf: Config){
     }
     ids
   }
+
+  def getCommentIds(): MutableList[String] = {
+    val ids = new MutableList[String]
+    connection.withSession{implicit session =>
+      val q = for(c <- comments) yield c.commentId
+      q.foreach{id => ids += id}
+    }
+    ids
+  }
   
   def getAllImageIds(): Map[UUID, String] = {
     val map = Map.empty[UUID, String]
@@ -168,16 +177,28 @@ class Db(conf: Config){
       crawls += (crawlId, uId, timestamp)
     }
   }
-  
+
+  def deleteCrawl(id: UUID): Unit = {
+    connection.withSession{ implicit session =>
+      println(id)
+    }
+  }
   //misc functions 
   def timestamp(): Timestamp = {new Timestamp(new Date().getTime())}
   def timestamp(time: String): Timestamp = {new Timestamp(new Date(time.toLong * 1000l).getTime)}
 
+  
   def testQuery():Unit = {
-    connection.withSession{ implicit session => {
-      val uuid = UUID.fromString("be3971f1-8421-4f1b-ba9f-31a86f25f7ea")
-      println(images.filter(_.id === uuid).list.head)
-    }}
+    connection.withSession{ implicit session => 
+      println(images.filter(_.id === getUUID).list.head)
+    }
   }
 
+  private def getUUID(): UUID = {
+    var i = UUID.randomUUID
+    connection.withSession{ implicit session =>
+      i = images.take(1).list.head._1
+    }
+    i
+  }
 }

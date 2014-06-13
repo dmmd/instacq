@@ -13,12 +13,15 @@ object Comments extends App {
   val images = db.getAllImageIds
   
   images.foreach{image => 
-  	val imageUUID = image._1
-  	val imageId = image._2
-  	val map = requests.getCommentsByMediaId(imageId)
-  	map.foreach{imageMap =>
-  		imageMap("imageId") = imageUUID.toString
-  		db.addComment(imageMap)
-  	}
+    val imageUUID = image._1
+    val imageId = image._2
+    println(image._2)
+    val map = requests.getCommentsByMediaId(imageId)
+    if(map.size > 0){
+      map.foreach{imageMap =>
+  	imageMap("imageId") = imageUUID.toString
+  	db.addComment(imageMap)
+      }
+    }
   }
 }
