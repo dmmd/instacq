@@ -32,7 +32,7 @@ class Crawl(){
     val images = requests.getImagesById(account("userId"))
     images.foreach{image =>
       if(! mediaIds.contains(image._1)){
-        logger.info("adding image: " + image._2)
+        logger.info("adding image: " + image._1)
         count += 1
         val mediaMap = requests.getImageById(image._1)
 	mediaMap("accountId") = account("id")
