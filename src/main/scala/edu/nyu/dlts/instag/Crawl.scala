@@ -4,20 +4,25 @@ import com.typesafe.config.ConfigFactory
 import org.apache.http.impl.client.HttpClients
 import java.util.UUID
 import java.io.File
-import grizzled.slf4j._
+import org.slf4j.LoggerFactory
+import com.typesafe.scalalogging.slf4j.Logger
+import org.apache.log4j.{PropertyConfigurator, LogManager, Level}
 
 class Crawl(){
+
+  val logger = Logger(LoggerFactory.getLogger(classOf[Crawl]))
+  PropertyConfigurator.configure("log4j.properties")
   val conf = ConfigFactory.load()
   val db = new Db(conf)
   val client = HttpClients.createDefault()
   val requests = new Requests(client, conf)
   val mediaIds = db.getImageIds
   var count = 0
-  val logger = Logger(classOf[Crawl])
-  logger.info("hello")
+
+  logger.info("Starting instacq crawl")
 
   db.getAccounts.foreach{account => 
-    logger.info("Getting images for " + account("id"))
+    logger.info("new image crawl started")
     val userUUID = UUID.fromString(account("id"))
     val crawlUUID = UUID.randomUUID
     val crawlDir = new File(conf.getString("instag.data_dir"), crawlUUID.toString)
@@ -27,7 +32,7 @@ class Crawl(){
     val images = requests.getImagesById(account("userId"))
     images.foreach{image =>
       if(! mediaIds.contains(image._1)){
-        logger.info(image._1)
+        logger.info("adding image: " + image._2)
         count += 1
         val mediaMap = requests.getImageById(image._1)
 	mediaMap("accountId") = account("id")
@@ -44,15 +49,14 @@ class Crawl(){
       crawlDir.delete
       db.deleteCrawl(crawlUUID)
     }
-
-    logger.info(count + " images to account: " + account("id"))
+    logger.info("new image crawl complete")
   }
 
   var commentCount = 0
   val images = db.getAllImageIds
   val commentIds = db.getCommentIds()
 
-  logger.info("updating comments")
+  logger.info("new comment crawl started")
   images.foreach{image => 
     val imageUUID = image._1
     val imageId = image._2
@@ -60,6 +64,7 @@ class Crawl(){
     if(comments.size > 0){
       comments.foreach{comment =>
         if(! commentIds.contains(comment("commentId"))){
+          logger.info("adding comment: " + comment("commentId"))
           comment("imageId") = imageUUID.toString
           db.addComment(comment)
           commentCount += 1
@@ -67,11 +72,9 @@ class Crawl(){
       }
     }
   }
+  logger.info("new comment crawl complete")
+  logger.info("crawl complete, " + count + " images and " + commentCount + " comments added to collection")
 
-  logger.info(commentCount + " comments added")
-
- 
-  
   def writeFile(url: String, dir: File){
     val file = new File(dir, url.split("/").last)
     new ImageDownload(url, file, client)

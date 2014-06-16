@@ -16,7 +16,8 @@ libraryDependencies ++= Seq(
   "postgresql" % "postgresql" % "9.1-901.jdbc4",
   "com.fasterxml" % "jackson-xml-databind" % "0.6.2",
   "com.typesafe.slick" %% "slick" % "2.0.2",
-  "org.slf4j" % "slf4j-api" % "1.6.4",
-  "org.clapper" % "avsl_2.10" % "1.0",
-  "org.clapper" %% "grizzled-slf4j" % "1.0.2"
+  "com.typesafe.scala-logging" %% "scala-logging-slf4j" % "2.1.2",
+  "org.slf4j" % "slf4j-api" % "1.7.7",
+  "org.slf4j" % "slf4j-log4j12" % "1.7.7",
+  "log4j" % "log4j" % "1.2.17"
 )
