@@ -89,15 +89,7 @@ class Requests(client: CloseableHttpClient, conf: Config){
     list
   }
 
-  def findUserByUsername(name: String): Map[Int, Map[String, String]] = {
-    import scala.collection.JavaConversions._
-    val users = Map.empty[Int, Map[String, String]]
-    val get = new HttpGet(conf.getString("instag.endpoint") + "/users/search?q=" + name + "&client_id=" + conf.getString("instag.client_id"))
-    val rootNode = request(get)
-    var count = 1
-    rootNode.get("data").foreach{user => 
-      val map = Map.empty[String, String]
-      map("id") = user.get("id").getTextValue
+") = user.get("id").getTextValue
       map("fullName") = user.get("full_name").getTextValue
       map("username") = user.get("username").getTextValue
       users(count) = map

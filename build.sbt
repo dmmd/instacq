@@ -2,7 +2,7 @@ import AssemblyKeys._
 
 assemblySettings
 
-jarName in assembly := "instag.jar"
+jarName in assembly := "instacq.jar"
 
 name := "Instacq"
 

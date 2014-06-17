@@ -85,7 +85,7 @@ class Db(conf: Config){
   //acount functions
   def addAccount(map: Map[String, String]){
     connection.withSession{ implicit session =>
-      accounts += (UUID.randomUUID, map("uId"), map("uName"), map("uFullName"))
+      accounts += (UUID.randomUUID, map("id"), map("username"), map("fullName"))
     }
   }
 
