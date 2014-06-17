@@ -6,7 +6,7 @@ jarName in assembly := "instacq.jar"
 
 name := "Instacq"
 
-version := "0.2"
+version := "0.0.3"
 
 scalaVersion := "2.10.3"
 
